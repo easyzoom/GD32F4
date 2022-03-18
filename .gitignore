@@ -1,0 +1,8 @@
+.vscode/
+*.lst
+*.uvguix.*
+*.bin
+# *.code-workspace
+
+/Code/MDK/Objects
+/Code/MDK/Listings
