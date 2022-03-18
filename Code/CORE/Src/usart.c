@@ -97,7 +97,7 @@ void usart5_init(uint32_t baudrate)
     usart_enable(USART5);
 }
 
-void UsartPrintfone(uint32_t usart_periph, uint8_t *data,uint8_t length)
+void serial_transmit(uint32_t usart_periph, uint8_t *data,uint8_t length)
 {
    uint8_t i =0;
    for(i = 0; i<length ;i++ )
@@ -105,8 +105,18 @@ void UsartPrintfone(uint32_t usart_periph, uint8_t *data,uint8_t length)
      usart_data_transmit(usart_periph, data[i]);
      while(RESET == usart_flag_get(usart_periph, USART_FLAG_TBE));
   }
-   
 }
+
+void serial_receive(uint32_t usart_periph, uint8_t *data,uint8_t length)
+{
+   uint8_t i =0;
+   for(i = 0; i<length ;i++ )
+  {
+     usart_data_transmit(usart_periph, data[i]);
+     while(RESET == usart_flag_get(usart_periph, USART_FLAG_TBE));
+  }
+}
+
 
 void UsartPrintf(uint32_t usart_periph, char *fmt,...)
 {

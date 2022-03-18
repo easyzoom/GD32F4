@@ -44,8 +44,14 @@ OF SUCH DAMAGE.
 #include "can.h"
 #include "config.h"
 #include "cmsis_os.h"
+#include "SEGGER_RTT.h"
+#include "cm_backtrace.h"
+#include "shell_port.h"
 
 void MX_FREERTOS_Init(void);
+extern void fault_test_by_unalign(void);
+extern void fault_test_by_div0(void);
+void log_init(void);
 
 static uint32_t led_debug_1_tick = 0;
 
@@ -60,6 +66,8 @@ static void process_led_debug(void)
 
 void run_application_loop(void)
 {
+//    fault_test_by_unalign();
+//    fault_test_by_div0();
     process_led_debug();
 }
 
@@ -73,7 +81,11 @@ int main(void)
     uart_dma_init();
     can_config_init();
     systick_config();
-    
+    log_init();
+    SEGGER_RTT_Init();
+    SEGGER_RTT_printf(0, "Hello world !");
+    cm_backtrace_init("CmBacktrace", HARDWARE_VERSION, SOFTWARE_VERSION);
+    user_shell_init();
     /* Call init function for freertos objects (in freertos.c) */
     MX_FREERTOS_Init();
 

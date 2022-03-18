@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_STDPERIPH_DRIVER,GD32F407</Define>
+              <Define>USE_STDPERIPH_DRIVER,GD32F407,USE_FULL_ASSERT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include;..\MIDDLEWARES\Third_Party\FreeRTOS\Source\include;..\MIDDLEWARES\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\MIDDLEWARES\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F</IncludePath>
+              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include;..\MIDDLEWARES\Third_Party\FreeRTOS\Source\include;..\MIDDLEWARES\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\MIDDLEWARES\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\APP\cmbacktrace;..\APP\cmbacktrace\Languages\en-US;..\APP\cmbacktrace\Languages\zh-CN;..\APP\log;..\APP\rtt;..\APP\shell</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -374,7 +374,7 @@
             <ScatterFile></ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc></Misc>
+            <Misc>--keep shellCommand*</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -648,6 +648,76 @@
               <FileName>cmsis_os.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\MIDDLEWARES\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>shell</GroupName>
+          <Files>
+            <File>
+              <FileName>shell.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\shell\shell.c</FilePath>
+            </File>
+            <File>
+              <FileName>shell_ext.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\shell\shell_ext.c</FilePath>
+            </File>
+            <File>
+              <FileName>shell_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\shell\shell_port.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>cmbacktrace</GroupName>
+          <Files>
+            <File>
+              <FileName>cm_backtrace.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\cmbacktrace\cm_backtrace.c</FilePath>
+            </File>
+            <File>
+              <FileName>cmb_fault.S</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\APP\cmbacktrace\fault_handler\keil\cmb_fault.S</FilePath>
+            </File>
+            <File>
+              <FileName>fault_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\cmbacktrace\fault_test.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>log</GroupName>
+          <Files>
+            <File>
+              <FileName>log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\log\log.c</FilePath>
+            </File>
+            <File>
+              <FileName>log_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\log\log_port.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rtt</GroupName>
+          <Files>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\rtt\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>SEGGER_RTT_printf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\rtt\SEGGER_RTT_printf.c</FilePath>
             </File>
           </Files>
         </Group>
