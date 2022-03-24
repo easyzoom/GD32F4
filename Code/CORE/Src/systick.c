@@ -48,11 +48,11 @@ void systick_config(void)
 #if SYSTEM_SUPPORT_OS
     uint32_t reload;
 #endif
-    systick_clksource_set(SYSTICK_CLKSOURCE_HCLK);
+    systick_clksource_set(SYSTICK_CLKSOURCE_HCLK_DIV8);
     NVIC_SetPriority(SysTick_IRQn, 0x00);
-    fac_us=SystemCoreClock/1000000;
+    fac_us=SystemCoreClock/8000000;
 #if SYSTEM_SUPPORT_OS
-    reload=SystemCoreClock/1000000;
+    reload=SystemCoreClock/8000000;
     reload*=1000000/configTICK_RATE_HZ;
     fac_ms=1000/configTICK_RATE_HZ;
  

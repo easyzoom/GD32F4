@@ -66,14 +66,14 @@ void run_application_loop(void)
 int main(void)
 {
     gpio_config();
-    usart0_init(115200);
-    usart2_init(115200);
+//    usart0_init(115200);
+//    usart2_init(115200);
     usart3_init(115200);
-    usart5_init(115200);
-    uart_dma_init();
-    can_config_init();
+//    usart5_init(115200);
+//    uart_dma_init();
+//    can_config_init();
     systick_config();
-    
+    printf("hello world!\r\n");
     /* Call init function for freertos objects (in freertos.c) */
     MX_FREERTOS_Init();
 
@@ -84,3 +84,9 @@ int main(void)
     }
 }
 
+int fputc(int ch, FILE *f)
+{
+    usart_data_transmit(UART3, (uint32_t)ch);
+    while(!usart_flag_get(UART3, USART_FLAG_TBE));
+    return ch;
+}

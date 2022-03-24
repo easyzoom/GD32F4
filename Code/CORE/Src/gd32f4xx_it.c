@@ -37,7 +37,7 @@ OF SUCH DAMAGE.
 #include "gd32f4xx_it.h"
 #include "main.h"
 #include "systick.h"
-
+#include "cmsis_os.h"
 /*!
     \brief    this function handles NMI exception
     \param[in]  none
@@ -130,14 +130,17 @@ void DebugMon_Handler(void)
 //{
 //}
 
-///*!
-//    \brief    this function handles SysTick exception
-//    \param[in]  none
-//    \param[out] none
-//    \retval     none
-//*/
-//void SysTick_Handler(void)
-//{
-//    led_spark();
-//    delay_decrement();
-//}
+/*!
+    \brief    this function handles SysTick exception
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+extern void xPortSysTickHandler(void);
+void SysTick_Handler(void)
+{
+    if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)
+    {
+        xPortSysTickHandler();
+    }
+}
