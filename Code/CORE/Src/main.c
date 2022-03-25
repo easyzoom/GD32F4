@@ -45,10 +45,27 @@ OF SUCH DAMAGE.
 #include "config.h"
 #include "cmsis_os.h"
 
+#define CAN0_USED
+//#define CAN1_USED
+
+#ifdef  CAN0_USED
+    #define CANX CAN0
+    #define CAN_FIFOx CAN_FIFO0
+#else 
+    #define CANX CAN1
+    #define CAN_FIFOx CAN_FIFO1
+#endif
 void MX_FREERTOS_Init(void);
-
+#if 0
+FlagStatus can0_receive_flag;
+FlagStatus can1_receive_flag;
+FlagStatus can0_error_flag;
+FlagStatus can1_error_flag;
+can_trasnmit_message_struct transmit_message;
+can_receive_message_struct receive_message;
+volatile ErrStatus test_flag;
+volatile ErrStatus test_flag_interrupt;
 static uint32_t led_debug_1_tick = 0;
-
 static void process_led_debug(void)
 {
     if (xTaskGetTickCount() >= led_debug_1_tick + 500)
@@ -58,9 +75,120 @@ static void process_led_debug(void)
     }
 }
 
+ErrStatus can_loopback(void)
+{
+    can_trasnmit_message_struct transmit_message;
+    can_receive_message_struct  receive_message;
+    uint32_t timeout = 0xFFFF;
+    uint8_t transmit_mailbox = 0;
+    ErrStatus state = ERROR;
+
+    /* initialize transmit message */
+    can_struct_para_init(CAN_TX_MESSAGE_STRUCT, &transmit_message);
+//    transmit_message.tx_sfid = 0x601;
+//    transmit_message.tx_ft = CAN_FT_DATA;
+//    transmit_message.tx_ff = CAN_FF_STANDARD;
+//    transmit_message.tx_dlen = 8;
+//    transmit_message.tx_data[0] = 0x40;
+//    transmit_message.tx_data[1] = 0x41;
+//    transmit_message.tx_data[2] = 0x60;
+//    transmit_message.tx_data[3] = 0x00;
+//    transmit_message.tx_data[4] = 0x00;
+//    transmit_message.tx_data[5] = 0x00;
+//    transmit_message.tx_data[6] = 0x00;
+//    transmit_message.tx_data[7] = 0x00;
+    transmit_message.tx_sfid = 0x11;
+    transmit_message.tx_ft = CAN_FT_DATA;
+    transmit_message.tx_ff = CAN_FF_STANDARD;
+    transmit_message.tx_dlen = 2;
+    transmit_message.tx_data[0] = 0xAB;
+    transmit_message.tx_data[1] = 0xCD;
+    
+    /* initialize receive message */
+    can_struct_para_init(CAN_RX_MESSAGE_STRUCT, &receive_message);
+    
+    /* transmit message */
+    transmit_mailbox = can_message_transmit(CANX, &transmit_message);
+    /* waiting for transmit completed */
+    while((CAN_TRANSMIT_OK != can_transmit_states(CANX, transmit_mailbox)) && (0 != timeout)){
+        timeout--;
+    }
+    timeout = 0xFFFF;
+    /* waiting for receive completed */
+    while((can_receive_message_length_get(CANX, CAN_FIFOx) < 1) && (0 != timeout)){
+        timeout--; 
+    }
+
+    /* initialize receive message*/
+    receive_message.rx_sfid = 0x00;
+    receive_message.rx_ff = 0;
+    receive_message.rx_dlen = 0;
+    receive_message.rx_data[0] = 0x00;
+    receive_message.rx_data[1] = 0x00;
+    can_message_receive(CANX, CAN_FIFOx, &receive_message);
+    
+    /* check the receive message */
+    if((0x11 == receive_message.rx_sfid) && (CAN_FF_STANDARD == receive_message.rx_ff)
+       && (2 == receive_message.rx_dlen) && (0xCDAB == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
+        return SUCCESS;
+    }else{
+        return ERROR;
+    }
+//    for(int i = 0; i <= 7; i++)
+//    {
+//        printf("0x%2x ",receive_message.rx_data[i]);
+//        state = SUCCESS;
+//    }
+//    //0xa3 0xae 0x90 0x 3 0xf3 0xde 0x86 0x70
+//    //4b    41  60   00    31   42   00   00
+//    printf("\r\n");
+//    return state;
+}
+
+ErrStatus can_loopback_interrupt(void)
+{
+    can_trasnmit_message_struct transmit_message;
+    uint32_t timeout = 0x0000FFFF;
+
+    /* enable CAN receive FIFO1 not empty interrupt  */ 
+    can_interrupt_enable(CANX, CAN_INT_RFNE1);
+
+    /* initialize transmit message */
+    transmit_message.tx_sfid = 0;
+    transmit_message.tx_efid = 0x1234;
+    transmit_message.tx_ff = CAN_FF_EXTENDED;
+    transmit_message.tx_ft = CAN_FT_DATA;
+    transmit_message.tx_dlen = 2;
+    transmit_message.tx_data[0] = 0xDE;
+    transmit_message.tx_data[1] = 0xCA;
+    /* transmit a message */
+    can_message_transmit(CANX, &transmit_message);
+    
+    /* waiting for receive completed */
+    while((SUCCESS != test_flag_interrupt) && (0 != timeout)){
+        timeout--;
+    }
+    if(0 == timeout){
+        test_flag_interrupt = ERROR;
+    }
+
+    /* disable CAN receive FIFO1 not empty interrupt  */ 
+    can_interrupt_disable(CANX, CAN_INTEN_RFNEIE1);
+    
+    return test_flag_interrupt;
+}
+
+
 void run_application_loop(void)
 {
-    process_led_debug();
+    test_flag = can_loopback();
+    printf("test_flag:%d\r\n", test_flag);
+//    test_flag_interrupt = can_loopback_interrupt();
+    while(1)
+    {
+        
+        process_led_debug();
+    }
 }
 
 int main(void)
@@ -73,7 +201,9 @@ int main(void)
 //    uart_dma_init();
 //    can_config_init();
     systick_config();
-    printf("hello world!\r\n");
+    can_config_init();
+    can_filter_config_init();
+
     /* Call init function for freertos objects (in freertos.c) */
     MX_FREERTOS_Init();
 
@@ -90,3 +220,238 @@ int fputc(int ch, FILE *f)
     while(!usart_flag_get(UART3, USART_FLAG_TBE));
     return ch;
 }
+#endif
+#if 1
+volatile ErrStatus test_flag;
+volatile ErrStatus test_flag_interrupt;
+
+void nvic_config(void);
+void led_config(void);
+ErrStatus can_loopback(void);
+ErrStatus can_loopback_interrupt(void);
+void can_loopback_init(void);
+
+/*!
+    \brief      main function
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void run_application_loop(void)
+{
+    /* enable CAN clock */
+    
+    rcu_periph_clock_enable(RCU_CAN0);
+    rcu_periph_clock_enable(RCU_CAN1);
+    /* configure NVIC */
+    nvic_config();
+    test_flag = can_loopback();
+    printf("test_flag:%d\r\n", test_flag);
+    /* loopback of interrupt */
+//    test_flag_interrupt = can_loopback_interrupt();
+//    printf("test_flag:%d\r\n", test_flag_interrupt);
+    while (1);
+}
+
+int main(void)
+{
+    systick_config();
+    rcu_periph_clock_enable(RCU_GPIOC);
+    usart3_init(115200);
+    /* Call init function for freertos objects (in freertos.c) */
+    MX_FREERTOS_Init();
+
+    /* Start scheduler */
+    osKernelStart();
+    while(1)
+    {
+    }
+}
+/*!
+    \brief      function for CAN loopback communication
+    \param[in]  none
+    \param[out] none
+    \retval     ErrStatus
+*/
+ErrStatus can_loopback(void)
+{
+    ErrStatus state = ERROR;
+    can_trasnmit_message_struct transmit_message;
+    can_receive_message_struct  receive_message;
+    uint32_t timeout = 0xFFFF;
+    uint8_t transmit_mailbox = 0;
+    /* initialize CAN */
+    can_loopback_init();
+
+    /* initialize transmit message */
+    can_struct_para_init(CAN_TX_MESSAGE_STRUCT, &transmit_message);
+    transmit_message.tx_sfid = 0x601;
+    transmit_message.tx_efid = 0x00;
+    transmit_message.tx_ft = CAN_FT_DATA;
+    transmit_message.tx_ff = CAN_FF_STANDARD;
+    transmit_message.tx_dlen = 8;
+    transmit_message.tx_data[0] = 0x40;
+    transmit_message.tx_data[1] = 0x41;
+    transmit_message.tx_data[2] = 0x60;
+    transmit_message.tx_data[3] = 0x00;
+    transmit_message.tx_data[4] = 0x00;
+    transmit_message.tx_data[5] = 0x00;
+    transmit_message.tx_data[6] = 0x00;
+    transmit_message.tx_data[7] = 0x00;
+    
+    /* initialize receive message */
+    can_struct_para_init(CAN_RX_MESSAGE_STRUCT, &receive_message);
+    
+    /* transmit message */
+    transmit_mailbox = can_message_transmit(CANX, &transmit_message);
+    /* waiting for transmit completed */
+    while((CAN_TRANSMIT_OK != can_transmit_states(CANX, transmit_mailbox)) && (0 != timeout)){
+        timeout--;
+    }
+    timeout = 0xFFFF;
+    /* waiting for receive completed */
+    while((can_receive_message_length_get(CANX, CAN_FIFOx) < 1) && (0 != timeout)){
+        timeout--; 
+    }
+
+    /* initialize receive message*/
+    receive_message.rx_sfid = 0x00;
+    receive_message.rx_ff = 0;
+    receive_message.rx_dlen = 0;
+    receive_message.rx_data[0] = 0x00;
+    receive_message.rx_data[1] = 0x00;
+    can_message_receive(CANX, CAN_FIFOx, &receive_message);
+    
+    /* check the receive message */
+//    if((0x11 == receive_message.rx_sfid) && (CAN_FF_STANDARD == receive_message.rx_ff)
+//       && (2 == receive_message.rx_dlen) && (0xCDAB == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
+//        return SUCCESS;
+//    }else{
+//        return ERROR;
+//    }
+    for(int i = 0; i <= 7; i++)
+    {
+        printf("%02x ",receive_message.rx_data[i]);
+        state = SUCCESS;
+    }
+    return state;
+}
+
+/*!
+    \brief      function for CAN loopback interrupt communication
+    \param[in]  none
+    \param[out] none
+    \retval     ErrStatus
+*/
+ErrStatus can_loopback_interrupt(void)
+{
+    can_trasnmit_message_struct transmit_message;
+    uint32_t timeout = 0x0000FFFF;
+    
+    /* initialize CAN and filter */
+    can_loopback_init();
+
+    /* enable CAN receive FIFO1 not empty interrupt  */ 
+    can_interrupt_enable(CANX, CAN_INT_RFNE1);
+
+    /* initialize transmit message */
+    transmit_message.tx_sfid = 0;
+    transmit_message.tx_efid = 0x1234;
+    transmit_message.tx_ff = CAN_FF_EXTENDED;
+    transmit_message.tx_ft = CAN_FT_DATA;
+    transmit_message.tx_dlen = 2;
+    transmit_message.tx_data[0] = 0xDE;
+    transmit_message.tx_data[1] = 0xCA;
+    /* transmit a message */
+    can_message_transmit(CANX, &transmit_message);
+    
+    /* waiting for receive completed */
+    while((SUCCESS != test_flag_interrupt) && (0 != timeout)){
+        timeout--;
+    }
+    if(0 == timeout){
+        test_flag_interrupt = ERROR;
+    }
+
+    /* disable CAN receive FIFO1 not empty interrupt  */ 
+    can_interrupt_disable(CANX, CAN_INTEN_RFNEIE1);
+    
+    return test_flag_interrupt;
+}
+
+/*!
+    \brief      initialize CAN and filter
+    \param[in]  can_parameter
+      \arg        can_parameter_struct
+    \param[in]  can_filter
+      \arg        can_filter_parameter_struct
+    \param[out] none
+    \retval     none
+*/
+void can_loopback_init(void)
+{
+    can_parameter_struct        can_parameter;
+    can_filter_parameter_struct can_filter;
+    
+    can_struct_para_init(CAN_INIT_STRUCT, &can_parameter);
+    can_struct_para_init(CAN_FILTER_STRUCT, &can_filter);
+    
+    /* initialize CAN register */
+    can_deinit(CANX);
+    
+    /* initialize CAN */
+    can_parameter.time_triggered = DISABLE;
+    can_parameter.auto_bus_off_recovery = DISABLE;
+    can_parameter.auto_wake_up = DISABLE;
+    can_parameter.no_auto_retrans = DISABLE;
+    can_parameter.rec_fifo_overwrite = DISABLE;
+    can_parameter.trans_fifo_order = DISABLE;
+    can_parameter.working_mode = CAN_NORMAL_MODE;
+    /* configure baudrate to 500kbps */
+    can_parameter.resync_jump_width = CAN_BT_SJW_1TQ;
+    can_parameter.time_segment_1 = CAN_BT_BS1_5TQ;
+    can_parameter.time_segment_2 = CAN_BT_BS2_4TQ;
+    can_parameter.prescaler = 5;
+    can_init(CANX, &can_parameter);
+
+    /* initialize filter */
+#ifdef  CAN0_USED
+    /* CAN0 filter number */
+    can_filter.filter_number = 0;
+#else
+    /* CAN1 filter number */
+    can_filter.filter_number = 15;
+#endif
+    /* initialize filter */    
+    can_filter.filter_mode = CAN_FILTERMODE_MASK;
+    can_filter.filter_bits = CAN_FILTERBITS_32BIT;
+    can_filter.filter_list_high = 0x0000;
+    can_filter.filter_list_low = 0x0000;
+    can_filter.filter_mask_high = 0x0000;
+    can_filter.filter_mask_low = 0x0000;  
+    can_filter.filter_fifo_number = CAN_FIFOx;
+    can_filter.filter_enable=ENABLE;
+    can_filter_init(&can_filter);
+}
+
+/*!
+    \brief      configure the nested vectored interrupt controller
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void nvic_config(void)
+{
+    /* configure CAN0 NVIC */
+    nvic_irq_enable(CAN0_RX1_IRQn,0,0);
+    /* configure CAN1 NVIC */
+    nvic_irq_enable(CAN1_RX1_IRQn,0,0);
+}
+
+int fputc(int ch, FILE *f)
+{
+    usart_data_transmit(UART3, (uint32_t)ch);
+    while(!usart_flag_get(UART3, USART_FLAG_TBE));
+    return ch;
+}
+#endif

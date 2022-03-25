@@ -38,6 +38,7 @@ OF SUCH DAMAGE.
 #include "main.h"
 #include "systick.h"
 #include "cmsis_os.h"
+extern ErrStatus test_flag_interrupt;
 /*!
     \brief    this function handles NMI exception
     \param[in]  none
@@ -142,5 +143,57 @@ void SysTick_Handler(void)
     if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)
     {
         xPortSysTickHandler();
+    }
+}
+
+void CAN0_RX1_IRQHandler(void)
+{
+    can_receive_message_struct receive_message;
+    /* initialize receive message */
+    receive_message.rx_sfid = 0x00;
+    receive_message.rx_efid = 0x00;
+    receive_message.rx_ff = 0;
+    receive_message.rx_dlen = 0;
+    receive_message.rx_fi = 0;
+    receive_message.rx_data[0] = 0x00;
+    receive_message.rx_data[1] = 0x00;
+    
+    /* check the receive message */
+    can_message_receive(CAN0, CAN_FIFO1, &receive_message);
+    
+    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
+        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
+        test_flag_interrupt = SUCCESS; 
+    }else{
+        test_flag_interrupt = ERROR; 
+    }
+}
+
+/*!
+    \brief      this function handles CAN1 RX0 exception
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void CAN1_RX1_IRQHandler(void)
+{
+    can_receive_message_struct receive_message;
+    /* initialize receive message */
+    receive_message.rx_sfid = 0x00;
+    receive_message.rx_efid = 0x00;
+    receive_message.rx_ff = 0;
+    receive_message.rx_dlen = 0;
+    receive_message.rx_fi = 0;
+    receive_message.rx_data[0] = 0x00;
+    receive_message.rx_data[1] = 0x00;
+
+    /* check the receive message */
+    can_message_receive(CAN1, CAN_FIFO1, &receive_message);
+
+    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
+        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
+        test_flag_interrupt = SUCCESS; 
+    }else{
+        test_flag_interrupt = ERROR; 
     }
 }
