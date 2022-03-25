@@ -43,7 +43,6 @@ OF SUCH DAMAGE.
 #include "dma.h"
 #include "can.h"
 #include "config.h"
-#include "cmsis_os.h"
 
 #define CAN0_USED
 //#define CAN1_USED
@@ -55,7 +54,6 @@ OF SUCH DAMAGE.
     #define CANX CAN1
     #define CAN_FIFOx CAN_FIFO1
 #endif
-void MX_FREERTOS_Init(void);
 #if 0
 FlagStatus can0_receive_flag;
 FlagStatus can1_receive_flag;
@@ -237,10 +235,12 @@ void can_loopback_init(void);
     \param[out] none
     \retval     none
 */
-void run_application_loop(void)
+int main(void)
 {
+    systick_config();
+    rcu_periph_clock_enable(RCU_GPIOC);
+    usart3_init(115200);
     /* enable CAN clock */
-    
     rcu_periph_clock_enable(RCU_CAN0);
     rcu_periph_clock_enable(RCU_CAN1);
     /* configure NVIC */
@@ -251,21 +251,6 @@ void run_application_loop(void)
 //    test_flag_interrupt = can_loopback_interrupt();
 //    printf("test_flag:%d\r\n", test_flag_interrupt);
     while (1);
-}
-
-int main(void)
-{
-    systick_config();
-    rcu_periph_clock_enable(RCU_GPIOC);
-    usart3_init(115200);
-    /* Call init function for freertos objects (in freertos.c) */
-    MX_FREERTOS_Init();
-
-    /* Start scheduler */
-    osKernelStart();
-    while(1)
-    {
-    }
 }
 /*!
     \brief      function for CAN loopback communication

@@ -37,7 +37,6 @@ OF SUCH DAMAGE.
 #include "gd32f4xx_it.h"
 #include "main.h"
 #include "systick.h"
-#include "cmsis_os.h"
 extern ErrStatus test_flag_interrupt;
 /*!
     \brief    this function handles NMI exception
@@ -130,22 +129,15 @@ void DebugMon_Handler(void)
 //void PendSV_Handler(void)
 //{
 //}
-
+void SysTick_Handler(void)
+{
+}
 /*!
     \brief    this function handles SysTick exception
     \param[in]  none
     \param[out] none
     \retval     none
 */
-extern void xPortSysTickHandler(void);
-void SysTick_Handler(void)
-{
-    if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)
-    {
-        xPortSysTickHandler();
-    }
-}
-
 void CAN0_RX1_IRQHandler(void)
 {
     can_receive_message_struct receive_message;

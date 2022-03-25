@@ -36,9 +36,8 @@ OF SUCH DAMAGE.
 
 #include "gd32f4xx.h"
 #include "systick.h"
-#include "cmsis_os.h"
 
-#define SYSTEM_SUPPORT_OS   1
+#define SYSTEM_SUPPORT_OS   0
 
 static uint8_t  fac_us=0;                 //us延时倍乘数
 static uint16_t fac_ms=0;                 //ms延时倍乘数,在ucos下,代表每个节拍的ms数
