@@ -238,6 +238,7 @@ void can_loopback_init(void);
 int main(void)
 {
     systick_config();
+    gpio_config();
     rcu_periph_clock_enable(RCU_GPIOC);
     usart3_init(115200);
     /* enable CAN clock */
@@ -250,7 +251,11 @@ int main(void)
     /* loopback of interrupt */
 //    test_flag_interrupt = can_loopback_interrupt();
 //    printf("test_flag:%d\r\n", test_flag_interrupt);
-    while (1);
+    while (1)
+    {
+        gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
+        delay_ms(500);
+    }
 }
 /*!
     \brief      function for CAN loopback communication

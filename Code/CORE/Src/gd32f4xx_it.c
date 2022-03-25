@@ -131,6 +131,7 @@ void DebugMon_Handler(void)
 //}
 void SysTick_Handler(void)
 {
+    delay_decrement();
 }
 /*!
     \brief    this function handles SysTick exception

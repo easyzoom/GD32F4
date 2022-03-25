@@ -37,110 +37,49 @@ OF SUCH DAMAGE.
 #include "gd32f4xx.h"
 #include "systick.h"
 
-#define SYSTEM_SUPPORT_OS   0
+volatile static uint32_t delay;
 
-static uint8_t  fac_us=0;                 //us延时倍乘数
-static uint16_t fac_ms=0;                 //ms延时倍乘数,在ucos下,代表每个节拍的ms数
-
+/*!
+    \brief      configure systick
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
 void systick_config(void)
 {
-#if SYSTEM_SUPPORT_OS
-    uint32_t reload;
-#endif
-    systick_clksource_set(SYSTICK_CLKSOURCE_HCLK_DIV8);
-    NVIC_SetPriority(SysTick_IRQn, 0x00);
-    fac_us=SystemCoreClock/8000000;
-#if SYSTEM_SUPPORT_OS
-    reload=SystemCoreClock/8000000;
-    reload*=1000000/configTICK_RATE_HZ;
-    fac_ms=1000/configTICK_RATE_HZ;
- 
-    SysTick->CTRL|=SysTick_CTRL_TICKINT_Msk;
-    SysTick->LOAD=reload;
-    SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk;
-#else
-    fac_ms=(uint16_t)fac_us*1000;
-#endif
-}
-
-#if SYSTEM_SUPPORT_OS
-void delay_us(uint32_t nus)
-{
-    uint32_t ticks;
-    uint32_t told,tnow,tcnt=0;
-    uint32_t reload=SysTick->LOAD;            //LOAD的值
-    ticks=nus*fac_us;                         //需要的节拍数 
-    told=SysTick->VAL;                        //刚进入时的计数器值
-    while(1)
-    {
-        tnow=SysTick->VAL;
-        if(tnow!=told)
-        {
-            if(tnow<told)
-              tcnt+=told-tnow;                //这里注意一下SYSTICK是一个递减的计数器就可以了.
-            else
-              tcnt+=reload-tnow+told;
-            told=tnow;
-            if(tcnt>=ticks)
-              break;                          //时间超过/等于要延迟的时间,则退出.
+    /* setup systick timer for 1000Hz interrupts */
+    if (SysTick_Config(SystemCoreClock / 1000U)){
+        /* capture error */
+        while (1){
         }
     }
+    /* configure the systick handler priority */
+    NVIC_SetPriority(SysTick_IRQn, 0x00U);
 }
- 
- 
-void delay_ms(uint32_t nms)
+
+/*!
+    \brief      delay a time in milliseconds
+    \param[in]  count: count in milliseconds
+    \param[out] none
+    \retval     none
+*/
+void delay_ms(uint32_t count)
 {
-    if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED) //系统已经运行
-    {
-        if(nms>=fac_ms)                                     //延时的时间大于OS的最少时间周期
-        {
-            vTaskDelay(nms/fac_ms);                         //FreeRTOS延时
-        }
-        nms%=fac_ms;                                        //OS已经无法提供这么小的延时了,采用普通方式延时
+    delay = count;
+
+    while(0U != delay){
     }
-    delay_us((uint32_t)(nms*1000));                         //普通方式延时
 }
 
-#else
-void delay_us(uint32_t nus)
+/*!
+    \brief      delay decrement
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void delay_decrement(void)
 {
-    uint32_t temp;
-    SysTick->LOAD=nus*fac_us;                 //时间加载
-    SysTick->VAL=0x00;                        //清空计数器
-    SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;  //开始倒数
-    do
-    {
-        temp=SysTick->CTRL;
-    }while((temp&0x01)&&!(temp&(1<<16)));     //等待时间到达
-    SysTick->CTRL&=~SysTick_CTRL_ENABLE_Msk;  //关闭计数器
-    SysTick->VAL =0X00;                       //清空计数器 
-}
-
-
-void delay_xms(uint16_t nms)
-{
-    uint32_t temp;
-    SysTick->LOAD=(uint32_t)nms*fac_ms;       //时间加载(SysTick->LOAD为24bit)
-    SysTick->VAL =0x00;                       //清空计数器
-    SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;  //开始倒数
-    do
-    {
-        temp=SysTick->CTRL;
-    }while((temp&0x01)&&!(temp&(1<<16)));     //等待时间到达
-    SysTick->CTRL&=~SysTick_CTRL_ENABLE_Msk;  //关闭计数器
-    SysTick->VAL =0X00;                       //清空计数器
-} 
-
-
-void delay_ms(uint16_t nms)
-{
-    uint8_t repeat=nms/540;                 //这里用540,是考虑到某些客户可能超频使用,比如超频到248M的时候,delay_xms最大只能延时541ms左右了
-    uint16_t remain=nms%540;
-    while(repeat)
-    {
-        delay_xms(540);
-        repeat--;
+    if (0U != delay){
+        delay--;
     }
-    if(remain)delay_xms(remain);
-} 
-#endif
+}
