@@ -141,25 +141,25 @@ void SysTick_Handler(void)
 */
 void CAN0_RX1_IRQHandler(void)
 {
-    can_receive_message_struct receive_message;
-    /* initialize receive message */
-    receive_message.rx_sfid = 0x00;
-    receive_message.rx_efid = 0x00;
-    receive_message.rx_ff = 0;
-    receive_message.rx_dlen = 0;
-    receive_message.rx_fi = 0;
-    receive_message.rx_data[0] = 0x00;
-    receive_message.rx_data[1] = 0x00;
-    
-    /* check the receive message */
-    can_message_receive(CAN0, CAN_FIFO1, &receive_message);
-    
-    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
-        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
-        test_flag_interrupt = SUCCESS; 
-    }else{
-        test_flag_interrupt = ERROR; 
-    }
+//    can_receive_message_struct receive_message;
+//    /* initialize receive message */
+//    receive_message.rx_sfid = 0x00;
+//    receive_message.rx_efid = 0x00;
+//    receive_message.rx_ff = 0;
+//    receive_message.rx_dlen = 0;
+//    receive_message.rx_fi = 0;
+//    receive_message.rx_data[0] = 0x00;
+//    receive_message.rx_data[1] = 0x00;
+//    
+//    /* check the receive message */
+//    can_message_receive(CAN0, CAN_FIFO1, &receive_message);
+//    
+//    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
+//        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
+//        test_flag_interrupt = SUCCESS; 
+//    }else{
+//        test_flag_interrupt = ERROR; 
+//    }
 }
 
 /*!
@@ -170,23 +170,23 @@ void CAN0_RX1_IRQHandler(void)
 */
 void CAN1_RX1_IRQHandler(void)
 {
-    can_receive_message_struct receive_message;
-    /* initialize receive message */
-    receive_message.rx_sfid = 0x00;
-    receive_message.rx_efid = 0x00;
-    receive_message.rx_ff = 0;
-    receive_message.rx_dlen = 0;
-    receive_message.rx_fi = 0;
-    receive_message.rx_data[0] = 0x00;
-    receive_message.rx_data[1] = 0x00;
+//    can_receive_message_struct receive_message;
+//    /* initialize receive message */
+//    receive_message.rx_sfid = 0x00;
+//    receive_message.rx_efid = 0x00;
+//    receive_message.rx_ff = 0;
+//    receive_message.rx_dlen = 0;
+//    receive_message.rx_fi = 0;
+//    receive_message.rx_data[0] = 0x00;
+//    receive_message.rx_data[1] = 0x00;
 
-    /* check the receive message */
-    can_message_receive(CAN1, CAN_FIFO1, &receive_message);
+//    /* check the receive message */
+//    can_message_receive(CAN1, CAN_FIFO1, &receive_message);
 
-    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
-        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
-        test_flag_interrupt = SUCCESS; 
-    }else{
-        test_flag_interrupt = ERROR; 
-    }
+//    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
+//        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
+//        test_flag_interrupt = SUCCESS; 
+//    }else{
+//        test_flag_interrupt = ERROR; 
+//    }
 }

@@ -68,7 +68,7 @@ void usart3_init(uint32_t baudrate)
     usart_receive_config(UART3, USART_RECEIVE_ENABLE);
     usart_transmit_config(UART3, USART_TRANSMIT_ENABLE);
     nvic_irq_enable(UART3_IRQn, 2, 0);
-    usart_interrupt_enable(UART3, USART_INT_IDLE);
+//    usart_interrupt_enable(UART3, USART_INT_IDLE);
     usart_enable(UART3);
 }
 
