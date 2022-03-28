@@ -55,12 +55,6 @@ OF SUCH DAMAGE.
     #define CAN_FIFOx CAN_FIFO1
 #endif
 #if 1
-FlagStatus can0_receive_flag;
-FlagStatus can1_receive_flag;
-FlagStatus can0_error_flag;
-FlagStatus can1_error_flag;
-can_trasnmit_message_struct transmit_message;
-can_receive_message_struct receive_message;
 volatile ErrStatus test_flag;
 volatile ErrStatus test_flag_interrupt;
 
@@ -94,13 +88,13 @@ ErrStatus can_loopback(void)
     /* transmit message */
     transmit_mailbox = can_message_transmit(CANX, &transmit_message);
     /* waiting for transmit completed */
-    while((CAN_TRANSMIT_OK != can_transmit_states(CANX, transmit_mailbox)) && (0 != timeout)){
-        timeout--;
-        if(timeout == 0)
-        {
-            printf("can time out\r\n");
-        }
-    }
+//    while((CAN_TRANSMIT_OK != can_transmit_states(CANX, transmit_mailbox)) && (0 != timeout)){
+//        timeout--;
+//        if(timeout == 0)
+//        {
+//            printf("can time out\r\n");
+//        }
+//    }
     timeout = 0xFFFF;
     /* waiting for receive completed */
     while((can_receive_message_length_get(CANX, CAN_FIFOx) < 1) && (0 != timeout)){
@@ -148,9 +142,8 @@ int main(void)
     gpio_config();
     usart3_init(115200);
     can_gpio_init();
-    can_config_init();
     nvic_config();
-    
+    can_config_init();
     can_filter_config_init();
     test_flag = can_loopback();
 //    printf("test_flag:%d\r\n", test_flag);

@@ -24,28 +24,28 @@ void can_config_init(void)
     can_parameter_struct can_parameter;
     
     can_deinit(CAN0);
-    can_parameter.working_mode = CAN_LOOPBACK_MODE;
+    can_parameter.working_mode = CAN_NORMAL_MODE;
     can_parameter.resync_jump_width = CAN_BT_SJW_1TQ;
     can_parameter.time_segment_1 = CAN_BT_BS1_5TQ;
     can_parameter.time_segment_2 = CAN_BT_BS2_4TQ;
     can_parameter.time_triggered = DISABLE;
     can_parameter.auto_bus_off_recovery = DISABLE;
     can_parameter.auto_wake_up = DISABLE;
-    can_parameter.no_auto_retrans = DISABLE;
+    can_parameter.auto_retrans = DISABLE;
     can_parameter.rec_fifo_overwrite = DISABLE;
     can_parameter.trans_fifo_order = DISABLE;
     can_parameter.prescaler = 5;
     can_init(CAN0, &can_parameter);
 
     can_deinit(CAN1);
-    can_parameter.working_mode = CAN_LOOPBACK_MODE;
+    can_parameter.working_mode = CAN_NORMAL_MODE;
     can_parameter.resync_jump_width = CAN_BT_SJW_1TQ;
     can_parameter.time_segment_1 = CAN_BT_BS1_5TQ;
     can_parameter.time_segment_2 = CAN_BT_BS2_4TQ;
     can_parameter.time_triggered = DISABLE;
     can_parameter.auto_bus_off_recovery = DISABLE;
     can_parameter.auto_wake_up = DISABLE;
-    can_parameter.no_auto_retrans = DISABLE;
+    can_parameter.auto_retrans = DISABLE;
     can_parameter.rec_fifo_overwrite = DISABLE;
     can_parameter.trans_fifo_order = DISABLE;
     can_parameter.prescaler = 5;
@@ -66,7 +66,6 @@ void can_filter_config_init(void)
     can0_filter_parameter.filter_bits = CAN_FILTERBITS_32BIT;
     can0_filter_parameter.filter_enable = ENABLE;
     can_filter_init(&can0_filter_parameter);
-//    can_interrupt_enable(CAN0, CAN_INT_RFNE0);
 
     can_filter_parameter_struct can1_filter_parameter;
     can1_filter_parameter.filter_list_high = 0x0000U;
@@ -79,7 +78,6 @@ void can_filter_config_init(void)
     can1_filter_parameter.filter_bits = CAN_FILTERBITS_32BIT;
     can1_filter_parameter.filter_enable = ENABLE;
     can_filter_init(&can1_filter_parameter);
-//    can_interrupt_enable(CAN1, CAN_INT_RFNE1);
 }
 
 uint32_t can_get_txmailboxfreelevel(uint32_t can_periph)
