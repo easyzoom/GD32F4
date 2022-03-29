@@ -37,15 +37,7 @@ OF SUCH DAMAGE.
 #include "gd32f4xx_it.h"
 #include "main.h"
 #include "systick.h"
-#if 1
-extern ErrStatus test_flag_interrupt;
-#else
-extern can_receive_message_struct receive_message;
-extern FlagStatus can0_receive_flag;
-extern FlagStatus can1_receive_flag;
-extern FlagStatus can0_error_flag;
-extern FlagStatus can1_error_flag;
-#endif
+
 /*!
     \brief    this function handles NMI exception
     \param[in]  none
@@ -141,82 +133,15 @@ void SysTick_Handler(void)
 {
     delay_decrement();
 }
-/*!
-    \brief    this function handles SysTick exception
-    \param[in]  none
-    \param[out] none
-    \retval     none
-*/
-void CAN0_RX1_IRQHandler(void)
+
+void DMA1_Channel5_IRQHandler(void)
 {
-#if 1
-    can_receive_message_struct receive_message;
-    /* initialize receive message */
-    receive_message.rx_sfid = 0x00;
-    receive_message.rx_efid = 0x00;
-    receive_message.rx_ff = 0;
-    receive_message.rx_dlen = 0;
-    receive_message.rx_fi = 0;
-    receive_message.rx_data[0] = 0x00;
-    receive_message.rx_data[1] = 0x00;
-    
-    /* check the receive message */
-    can_message_receive(CAN0, CAN_FIFO1, &receive_message);
-    
-    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
-        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
-        test_flag_interrupt = SUCCESS; 
-    }else{
-        test_flag_interrupt = ERROR; 
-    }
-#else
-    /* check the receive message */
-    can_message_receive(CAN0, CAN_FIFO0, &receive_message);
-    
-    if((0x300>>1 == receive_message.rx_sfid)&&(CAN_FF_STANDARD == receive_message.rx_ff)&&(2 == receive_message.rx_dlen)){
-        can0_receive_flag = SET; 
-    }else{
-        can0_error_flag = SET; 
-    }
-#endif
+    DMA1_Stream5_USRHandler();
 }
 
-/*!
-    \brief      this function handles CAN1 RX0 exception
-    \param[in]  none
-    \param[out] none
-    \retval     none
-*/
-void CAN1_RX1_IRQHandler(void)
+
+void DMA1_Channel7_IRQHandler(void)
 {
-#if 1
-    can_receive_message_struct receive_message;
-    /* initialize receive message */
-    receive_message.rx_sfid = 0x00;
-    receive_message.rx_efid = 0x00;
-    receive_message.rx_ff = 0;
-    receive_message.rx_dlen = 0;
-    receive_message.rx_fi = 0;
-    receive_message.rx_data[0] = 0x00;
-    receive_message.rx_data[1] = 0x00;
-
-    /* check the receive message */
-    can_message_receive(CAN1, CAN_FIFO1, &receive_message);
-
-    if((0x1234 == receive_message.rx_efid) && (CAN_FF_EXTENDED == receive_message.rx_ff)
-        && (2 == receive_message.rx_dlen) && (0xCADE == (receive_message.rx_data[1]<<8|receive_message.rx_data[0]))){
-        test_flag_interrupt = SUCCESS; 
-    }else{
-        test_flag_interrupt = ERROR; 
-    }
-#else
-    /* check the receive message */
-    can_message_receive(CAN1, CAN_FIFO0, &receive_message);
-    
-    if((0x300>>1 == receive_message.rx_sfid)&&(CAN_FF_STANDARD == receive_message.rx_ff)&&(2 == receive_message.rx_dlen)){
-        can1_receive_flag = SET; 
-    }else{
-        can1_error_flag = SET; 
-    }
-#endif
+    DMA1_Stream7_USRHandler();
 }
+
