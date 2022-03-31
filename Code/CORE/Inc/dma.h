@@ -8,6 +8,6 @@
 
 void uart_dma_init(void);
 void usart0_dma_send(uint8_t* buffer, uint16_t len);
-void dma0_send(void);
+void dma_send(void);
 void usart0_dma_receive(void);
 #endif

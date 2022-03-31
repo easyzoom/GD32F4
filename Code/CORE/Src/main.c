@@ -48,10 +48,13 @@ int main(void)
 {
     systick_config();
     gpio_config();
+    usart0_init(115200);
     usart3_init(115200);
-    can_gpio_init();
+    uart_dma_init();
+    gpio_bit_write(GPIOA, GPIO_PIN_11, SET);
     while(1)
     {
+        dma_send();
         gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
         delay_ms(500);
     }
@@ -71,7 +74,7 @@ void DMA1_Stream5_USRHandler(void)
         return;
     }
     dma_flag_clear(DMA1, DMA_CH5, DMA_FLAG_FTF);
-    usart0_dma_receive();
+//    usart0_dma_receive();
 }
 
 void DMA1_Stream7_USRHandler(void)
@@ -81,6 +84,7 @@ void DMA1_Stream7_USRHandler(void)
         return;
     }
     dma_flag_clear(DMA1, DMA_CH7, DMA_FLAG_FTF);
+    delay_ms(10);
 }
 
 void USART0_IRQHandler(void)

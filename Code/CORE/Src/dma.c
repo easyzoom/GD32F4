@@ -8,7 +8,7 @@ void uart_dma_init(void)
     dma_single_data_parameter_struct dma_init_struct;
     /* enable DMA clock */
     rcu_periph_clock_enable(RCU_DMA1);
-    /* deinitialize DMA channel5 */
+//    /* deinitialize DMA channel5 */
     dma_deinit(DMA1, DMA_CH5);
     dma_init_struct.direction = DMA_PERIPH_TO_MEMORY;
     dma_init_struct.memory0_addr  = NULL;
@@ -35,16 +35,19 @@ void uart_dma_init(void)
     dma_single_data_mode_init(DMA1, DMA_CH7, &dma_init_struct);
     dma_channel_subperipheral_select(DMA1, DMA_CH7, DMA_SUBPERI4);
     dma_circulation_disable(DMA1, DMA_CH7);
-
+    dma_periph_address_config(DMA1, DMA_CH5, USART0_DATA_ADDRESS);
+    dma_periph_address_config(DMA1, DMA_CH7, USART0_DATA_ADDRESS);
     usart_dma_receive_config(USART0, USART_DENR_ENABLE);
-    nvic_irq_enable(DMA1_Channel5_IRQn, 1, 0);
     usart_dma_transmit_config(USART0, USART_DENT_ENABLE);
-    nvic_irq_enable(DMA1_Channel7_IRQn, 2, 0);
     dma_interrupt_enable(DMA1, DMA_CH7, DMA_CHXCTL_FTFIE);
     dma_interrupt_enable(DMA1, DMA_CH5, DMA_CHXCTL_FTFIE);
-    dma_periph_address_config(DMA1, DMA_CH1, USART0_DATA_ADDRESS);
-    dma_channel_enable(DMA1, DMA_CH5);
+    nvic_irq_enable(DMA1_Channel5_IRQn, 1, 0);
+    nvic_irq_enable(DMA1_Channel7_IRQn, 2, 1);
+    dma_flag_clear(DMA1,DMA_CH7,DMA_INTF_FTFIF);
     dma_channel_enable(DMA1, DMA_CH7);
+    dma_channel_enable(DMA1, DMA_CH5);
+
+
 }
 
 void dma_send(void)
@@ -54,12 +57,11 @@ void dma_send(void)
 
 void usart0_dma_send(uint8_t* buffer, uint16_t len)
 {
-    dma_channel_disable(DMA1, DMA_CH1);
-    dma_memory_address_config(DMA1, DMA_CH1, 0, (uint32_t)buffer);
-    dma_transfer_number_config(DMA1, DMA_CH1, len);
+    dma_channel_disable(DMA1, DMA_CH7);
+    dma_memory_address_config(DMA1, DMA_CH7, 0, (uint32_t)buffer);
+    dma_transfer_number_config(DMA1, DMA_CH7, len);
     usart_dma_transmit_config(USART0, USART_DENT_ENABLE);
-    dma_channel_enable(DMA1, DMA_CH1);
-    while(RESET == dma_flag_get(DMA1, DMA_CH1, DMA_FLAG_FTF));
+    dma_channel_enable(DMA1, DMA_CH7);
 }
 
 void usart0_dma_receive(void)

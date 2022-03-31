@@ -3,8 +3,8 @@
 void usart0_init(uint32_t baudrate)
 {
     rcu_periph_clock_enable(RCU_USART0);
-    gpio_af_set(GPIOA, GPIO_AF_1, GPIO_PIN_9);
-    gpio_af_set(GPIOA, GPIO_AF_1, GPIO_PIN_10);
+    gpio_af_set(GPIOA, GPIO_AF_7, GPIO_PIN_9);
+    gpio_af_set(GPIOA, GPIO_AF_7, GPIO_PIN_10);
     gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_9);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_9);
     gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_10);
