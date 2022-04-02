@@ -17,6 +17,21 @@ enum
 {
     LED_RUN,
     USART_REN,
+    SW_RESET,
+    FINGER_PSW,
+    FINGER_CHECK,
+    CAM_2D_CHECK,
+    SENSOR_PSW,
+    SENSOR_CHECK,
+    VOUT_12V,
+    CAM_2D_PSW,
+    CAM_3D_PSW,
+    RESERVED_24V,
+    CAM_3D_CHECK,
+    LIGHT_PSW,
+    ROTATE_LEFT,
+    ROTATE_RIGHT,
+    STRETCH_ZERO,
 };
 
 #define PIN_DEFINE(port, pin, mode, pull, speed, otype) \
