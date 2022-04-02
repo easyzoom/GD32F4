@@ -134,14 +134,4 @@ void SysTick_Handler(void)
     delay_decrement();
 }
 
-void DMA1_Channel5_IRQHandler(void)
-{
-    DMA1_Stream5_USRHandler();
-}
-
-
-void DMA1_Channel7_IRQHandler(void)
-{
-    DMA1_Stream7_USRHandler();
-}
 

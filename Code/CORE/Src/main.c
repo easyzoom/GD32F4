@@ -42,7 +42,30 @@ OF SUCH DAMAGE.
 #include "usart.h"
 #include "dma.h"
 #include "can.h"
-#include "config.h"
+#include "cmsis_os.h"
+#include "lwip.h"
+
+void MX_FREERTOS_Init(void);
+
+static uint32_t led_debug_1_tick    = 0;
+
+void process_led_debug(void)
+{
+  /* toogle led_debug1 every 500ms */
+  if (xTaskGetTickCount() >= led_debug_1_tick + 500)
+  {
+    gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
+    led_debug_1_tick = xTaskGetTickCount();
+  }
+}
+
+void run_application_loop(void)
+{
+    for (;;)
+    {
+        process_led_debug();
+    }
+}
 
 int main(void)
 {
@@ -50,13 +73,10 @@ int main(void)
     gpio_config();
     usart0_init(115200);
     usart3_init(115200);
-    uart_dma_init();
-    gpio_bit_write(GPIOA, GPIO_PIN_11, SET);
+    MX_FREERTOS_Init();
+    osKernelStart();
     while(1)
     {
-        dma_send();
-        gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
-        delay_ms(500);
     }
 }
 
@@ -65,34 +85,5 @@ int fputc(int ch, FILE *f)
     usart_data_transmit(UART3, (uint32_t)ch);
     while(!usart_flag_get(UART3, USART_FLAG_TBE));
     return ch;
-}
-
-void DMA1_Stream5_USRHandler(void)
-{
-    if (dma_flag_get(DMA1, DMA_CH5, DMA_FLAG_FTF) != SET)
-    {
-        return;
-    }
-    dma_flag_clear(DMA1, DMA_CH5, DMA_FLAG_FTF);
-//    usart0_dma_receive();
-}
-
-void DMA1_Stream7_USRHandler(void)
-{
-    if (dma_flag_get(DMA1, DMA_CH7, DMA_FLAG_FTF) != SET)
-    {
-        return;
-    }
-    dma_flag_clear(DMA1, DMA_CH7, DMA_FLAG_FTF);
-    delay_ms(10);
-}
-
-void USART0_IRQHandler(void)
-{
-    if(RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_IDLE))
-    {
-        usart_data_receive(USART0);
-        dma_channel_disable(DMA1, DMA_CH5);
-    }
 }
 
