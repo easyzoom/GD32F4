@@ -4,6 +4,7 @@
 #include "gd32f4xx.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #define USART0_DATA_ADDRESS      ((USART_BASE + (0x0000CC00U)) + (0x04U))
 #define USART1_DATA_ADDRESS      ( USART_BASE + (0x04U))

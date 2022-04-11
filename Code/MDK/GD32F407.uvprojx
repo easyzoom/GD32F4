@@ -10,6 +10,7 @@
       <TargetName>GD32F4</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCC</pArmCC>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
@@ -211,7 +212,7 @@
             <Ra2Chk>0</Ra2Chk>
             <Ra3Chk>0</Ra3Chk>
             <Im1Chk>1</Im1Chk>
-            <Im2Chk>0</Im2Chk>
+            <Im2Chk>1</Im2Chk>
             <OnChipMemories>
               <Ocm1>
                 <Type>0</Type>
@@ -339,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,GD32F407</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include</IncludePath>
+              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include;..\TOOL\littlefs</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -592,6 +593,26 @@
               <FileName>startup_gd32f407.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\DRIVER\CMSIS\Device\GD\GD32F4xx\Source\ARM\startup_gd32f407.s</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>littlefs</GroupName>
+          <Files>
+            <File>
+              <FileName>fs_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\littlefs\fs_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\littlefs\lfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>lfs_util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\littlefs\lfs_util.c</FilePath>
             </File>
           </Files>
         </Group>
