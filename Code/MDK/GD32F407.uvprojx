@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,GD32F407</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include;..\TOOL\littlefs</IncludePath>
+              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -423,6 +423,11 @@
               <FileName>adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CORE\Src\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CORE\Src\delay.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -593,26 +598,6 @@
               <FileName>startup_gd32f407.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\DRIVER\CMSIS\Device\GD\GD32F4xx\Source\ARM\startup_gd32f407.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>littlefs</GroupName>
-          <Files>
-            <File>
-              <FileName>fs_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\TOOL\littlefs\fs_api.c</FilePath>
-            </File>
-            <File>
-              <FileName>lfs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\TOOL\littlefs\lfs.c</FilePath>
-            </File>
-            <File>
-              <FileName>lfs_util.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\TOOL\littlefs\lfs_util.c</FilePath>
             </File>
           </Files>
         </Group>

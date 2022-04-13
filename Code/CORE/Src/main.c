@@ -41,39 +41,24 @@ OF SUCH DAMAGE.
 #include "gpio.h"
 #include "usart.h"
 #include "config.h"
-#include "lfs.h"
-#include "fs_api.h"
+#include "delay.h"
 
 int main(void)
 {
-//    FILE_STR fp;
-//    int32_t res = 0;
-
     systick_config();
     gpio_config();
     usart3_init(115200);
-//    fs_api_init();
-//    uint32_t boot_count = 0;
+    time1_init();
+    float rtimevla = 0;
     while(1)
     {
         gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
-        delay_ms(1000);
-        lfs_test();
-//        res = fs_api_fopen(&fp,FILE_BASIC_INFO,"wr");
-//        if(res)
-//        {
-//            printf("FILE_BASIC_INFO open failure\r\n");
-//        }
-//        else
-//        {
-//            fs_api_fread(&fp, sizeof(boot_count), &boot_count);
-//            printf("1.boot_count: %d\r\n", boot_count);
-//            boot_count = boot_count + 1;
-//            printf("2.boot_count: %d\r\n", boot_count);
-//            fs_api_fwrite(&fp, sizeof(boot_count), &boot_count);
-//        }
-//        fs_api_fclose(&fp);
-//        printf("3.boot_count: %d\r\n", boot_count);
+//        delay_ms(1000);
+        printf("1\r\n");
+//        measure_runtime_start();
+        time1_delay_us(1000);
+//        rtimevla = measure_runtime_end();
+//        printf("The code run time is %f ms",rtimevla);
     }
 }
 
