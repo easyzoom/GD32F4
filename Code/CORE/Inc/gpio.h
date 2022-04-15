@@ -17,6 +17,7 @@ enum
 {
     LED_RUN,
     USART_REN,
+    SW_RESET,
 };
 
 #define PIN_DEFINE(port, pin, mode, pull, speed, otype) \

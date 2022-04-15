@@ -10,6 +10,7 @@
       <TargetName>GD32F4</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCC</pArmCC>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
@@ -339,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,GD32F407</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include;..\Middlewares\Third_Party\FreeRTOS\Source\include;..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\LWIP\App;..\LWIP\Target;..\Middlewares\Third_Party\LwIP\src\include;..\Middlewares\Third_Party\LwIP\src\include\netif\ppp;..\Middlewares\Third_Party\LwIP\src\include\lwip;..\Middlewares\Third_Party\LwIP\src\include\lwip\apps;..\Middlewares\Third_Party\LwIP\src\include\lwip\priv;..\Middlewares\Third_Party\LwIP\src\include\lwip\prot;..\Middlewares\Third_Party\LwIP\src\include\netif;..\Middlewares\Third_Party\LwIP\src\include\compat\posix;..\Middlewares\Third_Party\LwIP\src\include\compat\posix\arpa;..\Middlewares\Third_Party\LwIP\src\include\compat\posix\net;..\Middlewares\Third_Party\LwIP\src\include\compat\posix\sys;..\Middlewares\Third_Party\LwIP\src\include\compat\stdc;..\Middlewares\Third_Party\LwIP\system;..\Middlewares\Third_Party\LwIP\system\arch</IncludePath>
+              <IncludePath>..\CORE\Inc;..\DRIVER\CMSIS\Include;..\DRIVER\CMSIS\Device\GD\GD32F4xx\Include;..\DRIVER\GD32_Driver\Include;..\Middlewares\Third_Party\FreeRTOS\Source\include;..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\LWIP\App;..\LWIP\Target;..\Middlewares\Third_Party\LwIP\src\include;..\Middlewares\Third_Party\LwIP\src\include\netif\ppp;..\Middlewares\Third_Party\LwIP\src\include\lwip;..\Middlewares\Third_Party\LwIP\src\include\lwip\apps;..\Middlewares\Third_Party\LwIP\src\include\lwip\priv;..\Middlewares\Third_Party\LwIP\src\include\lwip\prot;..\Middlewares\Third_Party\LwIP\src\include\netif;..\Middlewares\Third_Party\LwIP\src\include\compat\posix;..\Middlewares\Third_Party\LwIP\src\include\compat\posix\arpa;..\Middlewares\Third_Party\LwIP\src\include\compat\posix\net;..\Middlewares\Third_Party\LwIP\src\include\compat\posix\sys;..\Middlewares\Third_Party\LwIP\src\include\compat\stdc;..\Middlewares\Third_Party\LwIP\system;..\Middlewares\Third_Party\LwIP\system\arch;..\Middlewares\Third_Party\LwIP\src\apps\httpd;..\TOOL\cJson;..\TOOL\crc;..\TOOL\Marvell_88E6390_drivers;..\TOOL\robot_debug;..\TOOL\switch_port;..\TOOL\littlefs</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -428,16 +429,21 @@
               <FileType>1</FileType>
               <FilePath>..\LWIP\App\lwip.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>library</GroupName>
-          <Files>
             <File>
               <FileName>ethernetif.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\LWIP\Target\ethernetif.c</FilePath>
             </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CORE\Src\delay.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>library</GroupName>
+          <Files>
             <File>
               <FileName>gd32f4xx_adc.c</FileName>
               <FileType>1</FileType>
@@ -1067,6 +1073,116 @@
               <FileName>mqtt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Middlewares\Third_Party\LwIP\src\apps\mqtt\mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>httpd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Middlewares\Third_Party\LwIP\src\apps\httpd\httpd.c</FilePath>
+            </File>
+            <File>
+              <FileName>fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Middlewares\Third_Party\LwIP\src\apps\httpd\fs.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>cjson</GroupName>
+          <Files>
+            <File>
+              <FileName>cJSON.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\cJson\cJSON.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>crc</GroupName>
+          <Files>
+            <File>
+              <FileName>crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\crc\crc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>marvell_88e6390</GroupName>
+          <Files>
+            <File>
+              <FileName>Marvell_88E6390_HwAccess.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\Marvell_88E6390_drivers\Marvell_88E6390_HwAccess.c</FilePath>
+            </File>
+            <File>
+              <FileName>Marvell_88E6390_msdPortRmon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\Marvell_88E6390_drivers\Marvell_88E6390_msdPortRmon.c</FilePath>
+            </File>
+            <File>
+              <FileName>Marvell_88E6390_PhyCtrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\Marvell_88E6390_drivers\Marvell_88E6390_PhyCtrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>Marvell_88E6390_PortCtrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\Marvell_88E6390_drivers\Marvell_88E6390_PortCtrl.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>debug</GroupName>
+          <Files>
+            <File>
+              <FileName>kubot_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\robot_debug\kubot_debug.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>switch_port</GroupName>
+          <Files>
+            <File>
+              <FileName>mdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\switch_port\mdio.c</FilePath>
+            </File>
+            <File>
+              <FileName>switch_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\switch_port\switch_app.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys_info.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CORE\Src\sys_info.c</FilePath>
+            </File>
+            <File>
+              <FileName>httpd_cgi_ssi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\switch_port\httpd_cgi_ssi.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lfs</GroupName>
+          <Files>
+            <File>
+              <FileName>lfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\littlefs\lfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>lfs_util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\littlefs\lfs_util.c</FilePath>
+            </File>
+            <File>
+              <FileName>fs_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TOOL\littlefs\fs_api.c</FilePath>
             </File>
           </Files>
         </Group>

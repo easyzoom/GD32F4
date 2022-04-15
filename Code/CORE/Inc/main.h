@@ -3,9 +3,11 @@
 
 #include "config.h"
 
+void reboot(void);
+void set_reboot(uint16_t time);
+int sys_default(void);
+
 void run_application_loop(void);
-void DMA1_Stream5_USRHandler(void);
-void DMA1_Stream7_USRHandler(void);
 #endif /* __MAIN_H */
 
 
