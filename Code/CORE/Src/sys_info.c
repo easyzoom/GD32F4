@@ -37,8 +37,8 @@ uint8_t sys_info_config(uint8_t state)
     //basic info default
     IP_ADDRESS[0] = 192;
     IP_ADDRESS[1] = 168;
-    IP_ADDRESS[2] = 86;
-    IP_ADDRESS[3] = 1;
+    IP_ADDRESS[2] = 0;
+    IP_ADDRESS[3] = 100;
     NETMASK_ADDRESS[0] = 255;
     NETMASK_ADDRESS[1] = 255;
     NETMASK_ADDRESS[2] = 255;

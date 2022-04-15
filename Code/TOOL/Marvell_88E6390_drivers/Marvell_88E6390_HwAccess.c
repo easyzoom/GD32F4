@@ -158,9 +158,9 @@ MSD_STATUS msdSetAnyRegField
     tmpData &= ~mask;
     /* Set the given data into the above reset bits.    */
     tmpData |= ((data << fieldOffset) & mask);
-    MSD_DBG_INFO("(LOG RW): devAddr 0x%02x, regAddr 0x%02x, ",
+    MSD_DBG_INFO("(LOG RW): devAddr 0x%02x, regAddr 0x%02x, \r\n",
               devAddr,regAddr);
-    MSD_DBG_INFO("fOff %d, fLen %d, data 0x%04x.\n", fieldOffset,
+    MSD_DBG_INFO("fOff %d, fLen %d, data 0x%04x.\r\n", fieldOffset,
               fieldLength,data);
 
     retVal = msdSetAnyReg(devAddr, regAddr, tmpData);

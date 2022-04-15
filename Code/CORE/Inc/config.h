@@ -17,48 +17,35 @@
 
 #define MODULE_ENB_DEBUG_PRINT
 //系统支持的网口数量，SW_PORTS_NUMBER = 外接网口数量 + 1(此为MCU连接交换机的Port0,外接网口从Port1开始)
-#define SW_PORTS_NUMBER        6
+#define SW_PORTS_NUMBER         5
+#define SW_SOFTWARE_VERSION     "V1.1 Build "__DATE__" " //不大于26 byte
+#define SW_HARDWARE_VERSION     "ROB042_MB201_V1.0"         //不大于20 byte
+#define SW_DEV_NAME             "ROB042_MB201"              //不大于16 byte
 
+#define MAC_ADDR0               2
+#define MAC_ADDR1               0xA
+#define MAC_ADDR2               0xF
+#define MAC_ADDR3               0xE
+#define MAC_ADDR4               0xD
+#define MAC_ADDR5               6
 
-#define SW_SOFTWARE_VERSION                     "V1.1 Build "__DATE__" " //不大于26 byte
+#define CRC16_TABLE_CODE        5
+#define FILE_MAX_BYTE           256
 
-//8网口版本交换机
-#if (SW_PORTS_NUMBER==9)
-
-#define SW_HARDWARE_VERSION                     "SWH100_MB100_V1.0"   //不大于20 byte  
-#define SW_DEV_NAME                             "SWH100_MB100"        //不大于16 byte   
-
-//5网口版本交换机
-#elif (SW_PORTS_NUMBER==6)
-
-#define SW_HARDWARE_VERSION                     "SWH100_MB200_V1.0"   //不大于20 byte    
-#define SW_DEV_NAME                             "SWH100_MB200"        //不大于16 byte 
-
-#endif
-
-#define CRC16_TABLE_CODE         5
-#define FILE_MAX_BYTE            256
-
-#define DEV_NAME            "desc"
-#define MAC_SNAME           "mac"
-#define IP_SNAME            "ip"
-#define NETMASK_SNAME       "nm"
-#define GATEWAY_SNAME       "gw"
-#define SW_SNAME            "sw_ver"
-#define HW_SNAME            "hw_ver"
-#define PVL_STATE           "pvl_s"
-#define PVLT_GR             "tb"
-#define CHECK_CRC           "ck_crc"
+#define DEV_NAME                "desc"
+#define MAC_SNAME               "mac"
+#define IP_SNAME                "ip"
+#define NETMASK_SNAME           "nm"
+#define GATEWAY_SNAME           "gw"
+#define SW_SNAME                "sw_ver"
+#define HW_SNAME                "hw_ver"
+#define PVL_STATE               "pvl_s"
+#define PVLT_GR                 "tb"
+#define CHECK_CRC               "ck_crc"
 
 //#define USE_DHCP       /* enable DHCP, if disabled static address is used */
 
-/* MAC address: MAC_ADDR0:MAC_ADDR1:MAC_ADDR2:MAC_ADDR3:MAC_ADDR4:MAC_ADDR5 */
-#define MAC_ADDR0   2
-#define MAC_ADDR1   0xA
-#define MAC_ADDR2   0xF
-#define MAC_ADDR3   0xE
-#define MAC_ADDR4   0xD
-#define MAC_ADDR5   6
+
 
 /* MII and RMII mode selection */
 #define RMII_MODE  // user have to provide the 50 MHz clock by soldering a 50 MHz oscillator

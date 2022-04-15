@@ -6,10 +6,10 @@
 #endif /* MDK ARM Compiler */
 #include "ethernetif.h"
 
-///* Semaphore to signal Ethernet Link state update */
-//osSemaphoreId Netif_LinkSemaphore = NULL;
-///* Ethernet link thread Argument */
-//struct link_str link_arg;
+/* Semaphore to signal Ethernet Link state update */
+osSemaphoreId Netif_LinkSemaphore = NULL;
+/* Ethernet link thread Argument */
+struct link_str link_arg;
 
 /* Variables Initialization */
 struct netif gnetif;
@@ -72,19 +72,19 @@ void gd32_lwip_init(void)
   /* Set the link callback function, this function is called on change of link status*/
   netif_set_link_callback(&gnetif, ethernetif_update_config);
 
-//  /* create a binary semaphore used for informing ethernetif of frame reception */
-//  osSemaphoreDef(Netif_SEM);
-//  Netif_LinkSemaphore = osSemaphoreCreate(osSemaphore(Netif_SEM) , 1 );
+  /* create a binary semaphore used for informing ethernetif of frame reception */
+  osSemaphoreDef(Netif_SEM);
+  Netif_LinkSemaphore = osSemaphoreCreate(osSemaphore(Netif_SEM) , 1 );
 
-//  link_arg.netif = &gnetif;
-//  link_arg.semaphore = Netif_LinkSemaphore;
-//  /* Create the Ethernet link handler thread */
-//  osThreadDef(LinkThr, ethernetif_set_link, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
-//  osThreadCreate (osThread(LinkThr), &link_arg);
-//#ifdef USE_DHCP
-//  /* Start DHCP negotiation for a network interface (IPv4) */
-//  dhcp_start(&gnetif);
-//#endif /* USE_DHCP */
+  link_arg.netif = &gnetif;
+  link_arg.semaphore = Netif_LinkSemaphore;
+  /* Create the Ethernet link handler thread */
+  osThreadDef(LinkThr, ethernetif_set_link, osPriorityBelowNormal, 0, 1024);
+  osThreadCreate (osThread(LinkThr), &link_arg);
+#ifdef USE_DHCP
+  /* Start DHCP negotiation for a network interface (IPv4) */
+  dhcp_start(&gnetif);
+#endif /* USE_DHCP */
 }
 
 #ifdef USE_OBSOLETE_USER_CODE_SECTION_4
