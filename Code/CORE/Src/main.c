@@ -15,7 +15,7 @@
 #include "switch_app.h"
 #include "ethernetif.h"
 #include "lwip.h"
-
+#include "httpd_cgi_ssi.h"
 uint16_t led_debug_1_tick = 500;
 uint8_t reboot_flag = 0;
 uint16_t reboot_timeout = 0;
@@ -114,14 +114,14 @@ void StartDefaultTask(void const * argument)
 //    tcp_client_init();
 //    udp_echo_init();
     
-//    httpd_init();
-//    httpd_ssi_init();
-//    httpd_cgi_init();
+    httpd_init();
+    httpd_ssi_init();
+    httpd_cgi_init();
     for (;;)
     {
-//        web_login_monitor();
-//        reboot();
-//        switch_app();
+        web_login_monitor();
+        reboot();
+        switch_app();
         led_ctrl();
         osDelay(1);
     }
