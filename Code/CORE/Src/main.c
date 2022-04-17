@@ -1,40 +1,3 @@
-/*!
-    \file    main.c
-    \brief   led spark with systick
-    
-    \version 2016-08-15, V1.0.0, firmware for GD32F4xx
-    \version 2018-12-12, V2.0.0, firmware for GD32F4xx
-    \version 2020-09-30, V2.1.0, firmware for GD32F4xx
-*/
-
-/*
-    Copyright (c) 2020, GigaDevice Semiconductor Inc.
-
-    Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-    1. Redistributions of source code must retain the above copyright notice, this 
-       list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
-       and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
-       specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
-OF SUCH DAMAGE.
-*/
-
-#include "gd32f4xx.h"
 #include "systick.h"
 #include <stdio.h>
 #include "main.h"
@@ -42,32 +5,124 @@ OF SUCH DAMAGE.
 #include "usart.h"
 #include "config.h"
 #include "delay.h"
+#include "cmsis_os.h"
 
-int main(void)
+#include "kubot_debug.h"
+#include "httpd.h"
+#include "delay.h"
+#include "fs_api.h"
+#include "sys_info.h"
+#include "switch_app.h"
+#include "ethernetif.h"
+#include "lwip.h"
+
+uint16_t led_debug_1_tick = 500;
+uint8_t reboot_flag = 0;
+uint16_t reboot_timeout = 0;
+
+/**
+ * @brief 系统重启倒计时
+ * 
+ * @param [in] time 毫秒后系统重启，0无效
+ * @return void
+ */
+void set_reboot(uint16_t time)
 {
-    systick_config();
-    gpio_config();
-    usart3_init(115200);
-    time1_init();
-    float rtimevla = 0;
-    while(1)
+    reboot_timeout = time;
+}
+
+/**
+ * @brief 系统重启处理
+ * 
+ * @param void
+ * @return void
+ */
+void reboot(void)
+{
+    static uint16_t time = 0;
+    if(reboot_timeout)
     {
-        gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
-//        delay_ms(1000);
-        printf("1\r\n");
-//        measure_runtime_start();
-        time1_delay_us(1000);
-//        rtimevla = measure_runtime_end();
-//        printf("The code run time is %f ms",rtimevla);
+        if(time++ > reboot_timeout)reboot_flag = 1;
+    }
+    if(reboot_flag)
+    {
+        taskENTER_CRITICAL();  /* 进入临界区 */
+        NVIC_SystemReset(); // 复位
     }
 }
 
-
-
-int fputc(int ch, FILE *f)
+/**
+ * @brief 系统恢复默认设置
+ * 
+ * @param void
+ * @return 
+ */
+int sys_default(void)
 {
-    usart_data_transmit(UART3, (uint32_t)ch);
-    while(!usart_flag_get(UART3, USART_FLAG_TBE));
-    return ch;
+    int state = 0;
+    
+    state = fs_api_format();
+    if(state)
+    {
+        LOG_PRINT_ERROR("File system format error\r\n");    
+    }
+    set_reboot(200);
+    return state;
 }
 
+/**
+ * @brief 系统指示灯
+ * 
+ * @param void
+ * @return void
+ */
+void led_ctrl(void)
+{
+    if (xTaskGetTickCount() >= led_debug_1_tick + 500)
+    {
+        gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
+        led_debug_1_tick = xTaskGetTickCount();
+    }
+}
+
+int main(void)
+{
+    
+    uint8_t state = 0;
+//    systick_config();
+    gpio_config();
+    gpio_bit_write(pinList[SW_RESET].port, pinList[SW_RESET].pin, SET);
+    time_delay_init();
+    usart3_init(115200);
+    enet_system_setup();
+    state = fs_api_init();
+    sys_info_config(state);
+    printf("HR-LINK system starting...\r\n");
+    nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
+    MX_FREERTOS_Init();
+    osKernelStart();
+    while(1)
+    {
+    }
+}
+
+void StartDefaultTask(void const * argument)
+{
+    lwip_stack_init();
+    switch_cfg();
+//    hello_gigadevice_init();
+//    tcp_client_init();
+//    udp_echo_init();
+    
+//    httpd_init();
+//    httpd_ssi_init();
+//    httpd_cgi_init();
+    for (;;)
+    {
+//        web_login_monitor();
+//        reboot();
+//        switch_app();
+        led_ctrl();
+        osDelay(1);
+    }
+}

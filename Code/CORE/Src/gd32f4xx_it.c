@@ -36,8 +36,10 @@ OF SUCH DAMAGE.
 
 #include "gd32f4xx_it.h"
 #include "main.h"
-#include "systick.h"
-
+#include "delay.h"
+#include "cmsis_os.h"
+extern osSemaphoreId s_xSemaphore;
+//extern xSemaphoreHandle g_rx_semaphore;
 /*!
     \brief    this function handles NMI exception
     \param[in]  none
@@ -129,9 +131,39 @@ void DebugMon_Handler(void)
 //void PendSV_Handler(void)
 //{
 //}
-void SysTick_Handler(void)
+//void SysTick_Handler(void)
+//{
+//    delay_decrement();
+//}
+
+
+void ENET_IRQHandler(void)
 {
-    delay_decrement();
+//    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+
+//    /* frame received */
+//    if(SET == enet_interrupt_flag_get(ENET_DMA_INT_FLAG_RS)){ 
+//        /* give the semaphore to wakeup LwIP task */
+//        xSemaphoreGiveFromISR(g_rx_semaphore, &xHigherPriorityTaskWoken);
+//    }
+
+//    /* clear the enet DMA Rx interrupt pending bits */
+//    enet_interrupt_flag_clear(ENET_DMA_INT_FLAG_RS_CLR);
+//    enet_interrupt_flag_clear(ENET_DMA_INT_FLAG_NI_CLR);
+
+//    /* switch tasks if necessary */
+//    if(pdFALSE != xHigherPriorityTaskWoken){
+//        portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+//    }
+    if(SET == enet_interrupt_flag_get(ENET_DMA_INT_FLAG_RS))
+    { 
+        osSemaphoreRelease(s_xSemaphore);
+    }
+    enet_interrupt_flag_clear(ENET_DMA_INT_FLAG_RS_CLR);
+    enet_interrupt_flag_clear(ENET_DMA_INT_FLAG_NI_CLR);
 }
 
-
+void TIMER1_IRQHandler(void)
+{
+    time1_delay_decrement();
+}
