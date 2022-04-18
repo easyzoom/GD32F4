@@ -110,10 +110,6 @@ void StartDefaultTask(void const * argument)
 {
     lwip_stack_init();
     switch_cfg();
-//    hello_gigadevice_init();
-//    tcp_client_init();
-//    udp_echo_init();
-    
     httpd_init();
     httpd_ssi_init();
     httpd_cgi_init();

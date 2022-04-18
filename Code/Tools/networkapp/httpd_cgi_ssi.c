@@ -767,7 +767,7 @@ static void req_basic_info_get( char * pcBuf, int iBufLen )
     sprintf ( ssi_buff, "nf.hv=\"%s\";\n",hw_ver);
     strcat ( pcBuf , ssi_buff );
 
-    LOG_PRINT_INFO("req_basic_info_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_basic_info_get:%d Byte\r\n",strlen(pcBuf));
     strcat ( pcBuf , JAVASCRIPT_FOOTER );
 
 }
@@ -917,7 +917,7 @@ static void req_monitor_get( char * pcBuf, int iBufLen )
     sprintf ( ssi_buff, "};");   
     strcat ( pcBuf , ssi_buff );
     
-    LOG_PRINT_INFO("req_monitor_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_monitor_get:%d Byte\r\n",strlen(pcBuf));
 
 }
 //ajax_monitor数据插入
@@ -1043,7 +1043,7 @@ static void ajax_monitor_get( char * pcBuf, int iBufLen )
         strcat ( pcBuf , ssi_buff );
     } 
     
-    LOG_PRINT_INFO("ajax_monitor_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("ajax_monitor_get:%d Byte\r\n",strlen(pcBuf));
 
 }
 static void req_password_get( char * pcBuf, int iBufLen )
@@ -1057,7 +1057,7 @@ static void req_password_get( char * pcBuf, int iBufLen )
     strcat ( pcBuf , ssi_buff );
     sprintf ( cgi_to_ssi_buf, "\"\"");
     strcat ( pcBuf , JAVASCRIPT_FOOTER );
-    LOG_PRINT_INFO("req_password_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_password_get:%d Byte\r\n",strlen(pcBuf));
 }
 static void req_swpage_get( char * pcBuf, int iBufLen )
 {
@@ -1066,7 +1066,7 @@ static void req_swpage_get( char * pcBuf, int iBufLen )
     strcat ( pcBuf , ssi_buff );
     sprintf ( cgi_to_ssi_buf, "\"\"");
     strcat ( pcBuf , JAVASCRIPT_FOOTER );
-    LOG_PRINT_INFO("req_swpage_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_swpage_get:%d Byte\r\n",strlen(pcBuf));
 }
 //插入系统设置初始参数
 static void req_sysst_get( char * pcBuf, int iBufLen )
@@ -1163,7 +1163,7 @@ static void req_pvl_get( char * pcBuf, int iBufLen )
     sprintf ( ssi_buff, "};");   
     strcat ( pcBuf , ssi_buff );
     
-    LOG_PRINT_INFO("req_pvl_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_pvl_get:%d Byte\r\n",strlen(pcBuf));
 }
 
 /**
@@ -1182,7 +1182,7 @@ static void req_pmngcfg_get( char * pcBuf, int iBufLen )
     strcat ( pcBuf , file_ram_bsif.file );
     sprintf (ssi_buff,"</>");   
     strcat ( pcBuf , ssi_buff);
-    LOG_PRINT_INFO("req_pmngcfg_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_pmngcfg_get:%d Byte\r\n",strlen(pcBuf));
 }
 /**
  * @brief 导入配置后，插入返回结果
@@ -1195,7 +1195,7 @@ static void req_bkprcv_get( char * pcBuf, int iBufLen )
     sprintf ( ssi_buff, "\nvar tip=%s;\n",cgi_to_ssi_buf);   
     strcpy ( pcBuf , ssi_buff );
     sprintf ( cgi_to_ssi_buf, "\"\"");
-    LOG_PRINT_INFO("req_bkprcv_get:%d Byte\n",strlen(pcBuf));
+    LOG_PRINT_INFO("req_bkprcv_get:%d Byte\r\n",strlen(pcBuf));
 }
 
 /****
