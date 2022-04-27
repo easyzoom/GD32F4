@@ -43,9 +43,9 @@ OF SUCH DAMAGE.
 #include "dma.h"
 #include "can.h"
 #include "config.h"
-
-#define CAN0_USED
-//#define CAN1_USED
+#include "cmsis_os.h"
+//#define CAN0_USED
+#define CAN1_USED
 
 #ifdef  CAN0_USED
     #define CANX CAN0
@@ -55,6 +55,9 @@ OF SUCH DAMAGE.
     #define CAN_FIFOx CAN_FIFO1
 #endif
 #if 1
+
+void MX_FREERTOS_Init(void);
+
 volatile ErrStatus test_flag;
 volatile ErrStatus test_flag_interrupt;
 
@@ -138,20 +141,40 @@ void nvic_config(void)
 
 int main(void)
 {
-    systick_config();
+//    systick_config();
     gpio_config();
     usart3_init(115200);
     can_gpio_init();
     nvic_config();
     can_config_init();
     can_filter_config_init();
+    nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
     test_flag = can_loopback();
 //    printf("test_flag:%d\r\n", test_flag);
 //    test_flag_interrupt = can_loopback_interrupt();
+    MX_FREERTOS_Init();
+    osKernelStart();
     while(1)
     {
+    }
+}
+
+static uint32_t led_debug_1_tick = 0;
+static void process_led_debug(void)
+{
+    if (xTaskGetTickCount() >= led_debug_1_tick + 500)
+    {
         gd_led_toggle(pinList[LED_RUN].port, pinList[LED_RUN].pin);
-        delay_ms(500);
+        led_debug_1_tick = xTaskGetTickCount();
+    }
+}
+
+void StartDefaultTask(void const * argument)
+{
+  
+    for (;;)
+    {
+        process_led_debug();
     }
 }
 
