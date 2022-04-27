@@ -61,6 +61,238 @@ void MX_FREERTOS_Init(void);
 volatile ErrStatus test_flag;
 volatile ErrStatus test_flag_interrupt;
 
+enum
+{
+  PHASE_START                   = 0,
+  PHASE_FLUSH_RX_MSG               ,
+  PHASE_CHECK_TX_BOX               ,
+  PHASE_SEND_REQ_MSG               ,
+  PHASE_CHECK_RX_BOX               ,
+  PHASE_RECV_RSP_MSG               ,
+  PHASE_BUILDING_RET               ,
+  PHASE_END                        ,
+  PHASE_ERROR                      ,
+};
+
+static uint8_t                      ready[2] = {1, 1};
+static can_trasnmit_message_struct  tx_head;
+static can_receive_message_struct   rx_head;
+
+static uint8_t __instruction_redirect_to_CAN(uint8_t *rx_buf, uint8_t rx_len, uint8_t *tx_buf, uint8_t *tx_len, uint32_t *phase_step, uint32_t *phase_tick)
+{
+  uint8_t wait_rsp          = (rx_buf[0] >> 7) & 0x1;
+  uint8_t send_rsp          = (rx_buf[0] >> 6) & 0x1;
+  uint8_t remote_frame      = (rx_buf[0] >> 4) & 0x1;
+  uint8_t DLC               = (rx_buf[0]     ) & 0xf;;
+  uint8_t controller_id     = rx_buf[1];
+  uint8_t canopen_discard   = (rx_buf[2] >> 7) & 0x1;
+  uint8_t wait_timeout      = (rx_buf[2] >> 3) & 0xf;
+  uint16_t can_id           = (uint16_t)((((uint16_t)rx_buf[2] << 8) & 0x0700) |
+                                         (((uint16_t)rx_buf[3] << 0) & 0x00ff));
+    uint8_t transmit_mailbox = 4;
+    uint32_t can_periph =
+#ifdef ENABLE_INS_REDIRECT_TO_CAN_CAN1
+                              controller_id == 0 ? CAN0 :
+#endif
+#ifdef ENABLE_INS_REDIRECT_TO_CAN_CAN2
+                              controller_id == 1 ? CAN1 :
+#endif
+                              NULL;
+                              
+  uint32_t can_fifo_num = 
+#ifdef ENABLE_INS_REDIRECT_TO_CAN_CAN1
+                              controller_id == 0 ? CAN_FIFO0 :
+#endif
+#ifdef ENABLE_INS_REDIRECT_TO_CAN_CAN2
+                              controller_id == 1 ? CAN_FIFO1 :
+#endif
+                              3;
+                              
+  if (can_periph == NULL || can_fifo_num == 3) //check if controller_id valid
+  {
+    printf("ERROR: invalid controller_id. %s:%d\r\n", __FUNCTION__, __LINE__);
+    return 11; //invalid controller_id
+  }
+
+  if (DLC != (rx_len - 4) || DLC > 8) //check if DLC valid
+  {
+    printf("ERROR: invalid DLC. %s:%d\r\n", __FUNCTION__, __LINE__);
+    return 12; //invalid Tx DLC
+  }
+
+  while (1)
+  {
+    switch (*phase_step)
+    {
+    case PHASE_START:
+      {
+        *phase_step = PHASE_FLUSH_RX_MSG;
+      }
+      break;
+    case PHASE_FLUSH_RX_MSG:
+      {
+        /* flush rx message  */
+        can_fifo_release(can_periph, can_fifo_num);
+        *phase_step = PHASE_SEND_REQ_MSG;
+        *phase_tick = xTaskGetTickCount();
+      }
+      break;
+    case PHASE_SEND_REQ_MSG:
+      {
+        /* send instruction */
+        {
+          tx_head.tx_sfid   = can_id;
+          tx_head.tx_efid   = 0x00U;
+          tx_head.tx_ff   = (uint8_t)CAN_FF_STANDARD;
+          tx_head.tx_ft   = (uint8_t)(remote_frame ? CAN_FT_REMOTE : CAN_FT_DATA);
+          tx_head.tx_dlen   = DLC;
+          for(int i = 0U; i < 8U; i++)
+          {
+              tx_head.tx_data[i] = rx_buf[4 + i];
+          }
+        }
+        transmit_mailbox = can_message_transmit(can_periph, &tx_head);
+
+        if (!wait_rsp) //check if need wait rsp
+        {
+          rx_head.rx_sfid = can_id;
+          rx_head.rx_dlen = 0;
+          *phase_step = PHASE_BUILDING_RET;
+        }
+        else
+        {
+          *phase_step = PHASE_CHECK_TX_BOX;
+          *phase_tick = xTaskGetTickCount();
+        }
+      }
+      break;
+    case PHASE_CHECK_TX_BOX:
+      {
+        /* check tx mailbox  */
+        if (CAN_TRANSMIT_OK == can_transmit_states(can_periph, transmit_mailbox))
+        {
+            *phase_step = PHASE_CHECK_RX_BOX;
+            *phase_tick = xTaskGetTickCount();
+        }
+        else if (CAN_TRANSMIT_PENDING == can_transmit_states(can_periph, transmit_mailbox))
+        {
+            if (xTaskGetTickCount() > *phase_tick + 10)
+            {
+                printf("ERROR: TxMessage Timeout. %s:%d\r\n", __FUNCTION__, __LINE__);
+                return 13; //TxMessage Timeout
+            }
+        }
+        else
+        {
+            return 0xfb;
+        }
+      }
+      break;
+    case PHASE_CHECK_RX_BOX:
+      {
+        /* check rx mailbox  */
+//        if (can_receive_message_length_get(can_periph, can_fifo_num) == 0)
+//        {
+          *phase_step = PHASE_RECV_RSP_MSG;
+//        }
+//        else
+//        if (xTaskGetTickCount() > *phase_tick + (wait_timeout > 0 ? (wait_timeout*1) : 10))
+//        {
+//          printf("ERROR: RxMessage Timeout. %s:%d\r\n", __FUNCTION__, __LINE__);
+//          return 15; //RxMessage Timeout
+//        }
+//        else
+//        {
+//          return 0xfb;
+//        }
+      }
+      break;
+    case PHASE_RECV_RSP_MSG:
+      {
+        /* receive response */
+        can_message_receive(can_periph, can_fifo_num, &rx_head);
+        if (canopen_discard && ((rx_head.rx_sfid & 0x0780) == 0x0080)) //emergency message
+        {
+          *phase_step = PHASE_CHECK_RX_BOX;
+        }
+        else
+        if (!send_rsp) //check if need send rsp
+        {
+          rx_head.rx_dlen = 0;
+          *phase_step = PHASE_BUILDING_RET;
+        }
+        else
+        if (rx_head.rx_dlen > 8)
+        {
+          printf("ERROR: invalid DLC. %s:%d\r\n", __FUNCTION__, __LINE__);
+          return 17; //invalid Rx DLC
+        }
+        else
+        {
+          *phase_step = PHASE_BUILDING_RET;
+        }
+      }
+      break;
+    case PHASE_BUILDING_RET:
+      {
+        if (*tx_len < 4 + rx_head.rx_dlen)
+        {
+            printf("ERROR: not enough space for result. %s:%d\r\n", __FUNCTION__, __LINE__);
+            return 18; //not enough space for result
+        }
+
+        (*tx_len) = 0;
+
+        tx_buf[(*tx_len)] = rx_head.rx_dlen;
+        (*tx_len)++;
+
+        tx_buf[(*tx_len)] = controller_id;
+        (*tx_len)++;
+
+        tx_buf[(*tx_len)] = (uint8_t)(((uint16_t)rx_head.rx_sfid >> 8) & 0xff);
+        (*tx_len)++;
+
+        tx_buf[(*tx_len)] = (uint8_t)(((uint16_t)rx_head.rx_sfid >> 0) & 0xff);
+        (*tx_len)++;
+
+        memcpy(&tx_buf[(*tx_len)], rx_head.rx_data, rx_head.rx_dlen);
+        (*tx_len)+=rx_head.rx_dlen;
+        printf("tx_buf[%d]: ", *tx_len);
+        for(int size = 0; size <= *tx_len; size++)
+        {
+            printf("%02x ", tx_buf[size]);
+        }
+        printf("\r\n");
+
+        *phase_step = PHASE_END;
+      }
+      break;
+    case PHASE_END:
+      return 0;
+    default:
+      return 0xfe; /* unknown phase!!! */
+    }
+  }
+}
+
+uint8_t instruction_redirect_to_CAN(uint8_t *rx_buf, uint8_t rx_len, uint8_t *tx_buf, uint8_t *tx_len, uint32_t *phase_step, uint32_t *phase_tick)
+{
+  if (*phase_step == 0 && ready[rx_buf[1]] != 1)
+    return 0xfb;
+  
+  uint8_t ret = __instruction_redirect_to_CAN(rx_buf, rx_len, tx_buf, tx_len, phase_step, phase_tick);
+  if (ret != 0xfb)
+  {
+    ready[rx_buf[1]] = 1;
+  }
+  else
+  {
+    ready[rx_buf[1]] = 0;   
+  }
+  
+  return ret;
+}
+
 ErrStatus can_loopback(void)
 {
     ErrStatus state = ERROR;
@@ -149,7 +381,7 @@ int main(void)
     can_config_init();
     can_filter_config_init();
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
-    test_flag = can_loopback();
+//    test_flag = can_loopback();
 //    printf("test_flag:%d\r\n", test_flag);
 //    test_flag_interrupt = can_loopback_interrupt();
     MX_FREERTOS_Init();
@@ -174,8 +406,34 @@ void StartDefaultTask(void const * argument)
   
     for (;;)
     {
+#if 1
+        uint32_t test_step = 0;
+        uint32_t *phase_step = &test_step;
+#if 0
+        //CAN1
+        uint8_t rx_buf[12] = {0xc8, 0x00, 0xfe, 0x01, 0x40, 0x41, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00};
+#endif
+#if 1
+        //CAN2
+        uint8_t rx_buf[12] = {0xc8, 0x01, 0xfe, 0x01, 0x40, 0x41, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00};
+#endif
+        uint8_t tx_buf[20] = {0};
+        uint8_t rx_len = 12, tx_len =12;
+        uint8_t *p_tx_len = &tx_len;
+        uint32_t test_tick = xTaskGetTickCount();
+        uint32_t *phase_tick = &test_tick;
+#endif
         process_led_debug();
-        can_loopback();
+#if 1
+        instruction_redirect_to_CAN(rx_buf, rx_len, tx_buf, p_tx_len, phase_step, phase_tick);
+        printf("tx_buf[%d]:", *p_tx_len);
+        for(int i = 0; i <= *p_tx_len; i++)
+        {
+            printf("%02x ", tx_buf[i]);
+        }
+        printf("\r\n");
+#endif
+//        can_loopback();
         osDelay(1);
     }
 }
