@@ -143,9 +143,9 @@ int main(void)
 {
 //    systick_config();
     gpio_config();
-    usart3_init(115200);
+    usart3_init(1500000);
     can_gpio_init();
-    nvic_config();
+//    nvic_config();
     can_config_init();
     can_filter_config_init();
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
@@ -175,6 +175,8 @@ void StartDefaultTask(void const * argument)
     for (;;)
     {
         process_led_debug();
+        can_loopback();
+        osDelay(1);
     }
 }
 

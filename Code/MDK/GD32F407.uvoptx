@@ -120,7 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>d</Name>
+          <Name>	</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -159,7 +159,7 @@
           <Type>0</Type>
           <LineNumber>145</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134225272</Address>
+          <Address>134225276</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -169,38 +169,6 @@
           <Filename>..\CORE\Src\main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\GD32F407\../CORE/Src/main.c\145</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>94</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134223718</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\CORE\Src\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\GD32F407\../CORE/Src/main.c\94</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>94</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134223730</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\CORE\Src\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\GD32F407\../CORE/Src/main.c\94</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -233,6 +201,11 @@
           <count>5</count>
           <WinNumber>1</WinNumber>
           <ItemText>val</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>transmit_mailbox</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
